@@ -62,6 +62,13 @@ func (p *Plugin) Run() {
 	log.Printf("[II] Start grok filter '%s' v%s", p.Name, p.Version)
 	myId := qutils.GetGID()
 	bg := p.QChan.Data.Join()
+	cPath := fmt.Sprintf("filter.%s.inputs", p.Name)
+	inStr, err := p.Cfg.String(cPath)
+	if err != nil {
+		inStr = ""
+	}
+	inputs := strings.Split(inStr, ",")
+	log.Printf("[II] %s: %v", cPath, inputs)
 	for {
 		val := bg.Recv()
 		switch val.(type) {
@@ -70,15 +77,14 @@ func (p *Plugin) Run() {
 			if qm.SourceID == myId {
 				continue
 			}
+			if len(inputs) != 0 && !qutils.IsInput(inputs, qm.Source) {
+				continue
+			}
+
 			qm.Type = "filter"
 			qm.Source = strings.Join(append(strings.Split(qm.Source, "->"), "id"), "->")
 			qm.SourceID = myId
-			// GROK magic
-			//var err error
 			qm.KV, _ = p.Match(qm.Msg)
-			/*if err != nil {
-				continue
-			}*/
 			p.QChan.Data.Send(qm)
 		}
 	}
