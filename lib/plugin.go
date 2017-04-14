@@ -65,10 +65,10 @@ func (p *Plugin) Run() {
 	cPath := fmt.Sprintf("filter.%s.inputs", p.Name)
 	inStr, err := p.Cfg.String(cPath)
 	if err != nil {
+
 		inStr = ""
 	}
 	inputs := strings.Split(inStr, ",")
-	log.Printf("[II] %s: %v", cPath, inputs)
 	for {
 		val := bg.Recv()
 		switch val.(type) {
@@ -82,7 +82,7 @@ func (p *Plugin) Run() {
 			}
 
 			qm.Type = "filter"
-			qm.Source = strings.Join(append(strings.Split(qm.Source, "->"), "id"), "->")
+			qm.Source = strings.Join(append(strings.Split(qm.Source, "->"), p.Name), "->")
 			qm.SourceID = myId
 			qm.KV, _ = p.Match(qm.Msg)
 			p.QChan.Data.Send(qm)
