@@ -1,0 +1,17 @@
+workspace:
+  base: /drone
+  path: src/github.com/qnib/qframe-filter-grok
+
+pipeline:
+  clone:
+    image: plugins/git
+    tags: true
+  test:
+    image: qnib/uplain-golang
+    pull: true
+    commands:
+     - govendor fetch +e
+     - govendor update +l
+     - go build -ldflags "-pluginpath=qframe-filter-grok" -buildmode=plugin -o grok.so main.go
+    environment:
+     - GOPATH=/drone/

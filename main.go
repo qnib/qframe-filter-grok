@@ -1,13 +1,20 @@
-# qframe-filter-grok
-qframe filter matching grok patterns
+package main
 
+import (
+	"log"
+	"fmt"
+	"time"
 
+	"github.com/zpatrick/go-config"
+	"github.com/qnib/qframe-types"
+	"github.com/qnib/qframe-filter-grok/lib"
+)
 
-## Hello World
+func Run(qChan qtypes.QChan, cfg config.Config, name string) {
+	p, _ := qframe_filter_grok.New(qChan, cfg, name)
+	p.Run()
+}
 
-As a standalone program like this:
-
-```go
 func main() {
 	qChan := qtypes.NewQChan()
 	qChan.Broadcast()
@@ -46,15 +53,3 @@ func main() {
 
 	}
 }
-```
-
-The plugin produces the following outcome:
-
-```bash
-$ go run main.go
-2017/04/14 07:28:16 [II] Dispatch broadcast for Data and Tick
-2017/04/14 07:28:16 [II] Start grok filter 'test' v0.0.0
-2017/04/14 07:28:18 Send message
-#### Received result from grok (pattern:%{INT:number}) filter for input: 1
-         number: 1
-```
