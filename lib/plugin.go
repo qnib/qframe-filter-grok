@@ -44,13 +44,14 @@ func New(qChan qtypes.QChan, cfg config.Config, name string) (p Plugin, err erro
 }
 
 
-func (p *Plugin) Match(str string) (val map[string]string, err error) {
-	val, err = p.grok.Parse(p.pattern, str)
+func (p *Plugin) Match(str string) (map[string]string, bool) {
+	match := true
+	val, _ := p.grok.Parse(p.pattern, str)
 	keys := reflect.ValueOf(val).MapKeys()
 	if len(keys) == 0 {
-		fmt.Println("Sorry, not a single match...")
+		match = false
 	}
-	return val, err
+	return val, match
 }
 
 func (p *Plugin) GetPattern() (string) {
@@ -65,10 +66,10 @@ func (p *Plugin) Run() {
 	cPath := fmt.Sprintf("filter.%s.inputs", p.Name)
 	inStr, err := p.Cfg.String(cPath)
 	if err != nil {
-
 		inStr = ""
 	}
 	inputs := strings.Split(inStr, ",")
+	srcSuccess, _ := p.Cfg.BoolOr(fmt.Sprintf("filter.%s.source-success", p.Name), true)
 	for {
 		val := bg.Recv()
 		switch val.(type) {
@@ -77,14 +78,17 @@ func (p *Plugin) Run() {
 			if qm.SourceID == myId {
 				continue
 			}
-			if len(inputs) != 0 && !qutils.IsInput(inputs, qm.Source) {
+			if len(inputs) != 0 && !qutils.IsLastSource(inputs, qm.Source) {
 				continue
 			}
-
+			if qm.SourceSuccess != srcSuccess {
+				continue
+			}
 			qm.Type = "filter"
-			qm.Source = strings.Join(append(strings.Split(qm.Source, "->"), p.Name), "->")
+			qm.Source = p.Name
 			qm.SourceID = myId
-			qm.KV, _ = p.Match(qm.Msg)
+			qm.SourcePath = append(qm.SourcePath, p.Name)
+			qm.KV, qm.SourceSuccess = p.Match(qm.Msg)
 			p.QChan.Data.Send(qm)
 		}
 	}
