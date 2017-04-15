@@ -78,7 +78,7 @@ func (p *Plugin) Run() {
 			if qm.SourceID == myId {
 				continue
 			}
-			if len(inputs) != 0 && !qutils.IsLastSource(inputs, qm.Source) {
+			if len(inputs) != 0 && !qutils.IsInput(inputs, qm.Source) {
 				continue
 			}
 			if qm.SourceSuccess != srcSuccess {
