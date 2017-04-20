@@ -3,6 +3,7 @@ package qframe_filter_grok
 import (
 	"C"
 	"fmt"
+	"os"
 	"reflect"
 	"github.com/vjeantet/grok"
 	"github.com/zpatrick/go-config"
@@ -14,6 +15,7 @@ import (
 const (
 	version = "0.1.4"
 	pluginTyp = "filter"
+	defPatternDir = "/etc/qwatch/patterns"
 )
 
 type Plugin struct {
@@ -33,8 +35,17 @@ func New(qChan qtypes.QChan, cfg config.Config, name string) (p Plugin, err erro
 		return p, err
 	}
 	pDir, err := p.CfgString("pattern-dir")
-	if err == nil {
+	if err != nil {
+		if _, err := os.Stat(defPatternDir); err == nil {
+			pDir = defPatternDir
+			p.Log("info", fmt.Sprintf("Add patterns from DEFAULT directory '%s'", pDir))
+		}
+	} else {
 		p.Log("info", fmt.Sprintf("Add patterns from directory '%s'", pDir))
+	}
+	if _, err := os.Stat(pDir); err != nil {
+		p.Log("error", fmt.Sprintf("Patterns directory does not exist '%s'", pDir))
+	} else {
 		p.grok.AddPatternsFromPath(pDir)
 	}
 	return p, err
