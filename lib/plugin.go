@@ -2,7 +2,6 @@ package qframe_filter_grok
 
 import (
 	"C"
-	"log"
 	"fmt"
 	"reflect"
 	"github.com/vjeantet/grok"
@@ -28,11 +27,15 @@ func New(qChan qtypes.QChan, cfg config.Config, name string) (p Plugin, err erro
 		Plugin: qtypes.NewNamedPlugin(qChan, cfg, pluginTyp, name, version),
 	}
 	p.grok, _ = grok.New()
-	pCfg := fmt.Sprintf("filter.%s.pattern", p.Name)
-	p.pattern, err = p.Cfg.String(pCfg)
+	p.pattern, err = p.CfgString("pattern")
 	if err != nil {
-		log.Printf("[EE] Could not find pattern in config: '%s'", pCfg)
+		p.Log("error", "Could not find pattern in config")
 		return p, err
+	}
+	pDir, err := p.CfgString("pattern-dir")
+	if err == nil {
+		p.Log("info", fmt.Sprintf("Add patterns from directory '%s'", pDir))
+		p.grok.AddPatternsFromPath(pDir)
 	}
 	return p, err
 }
