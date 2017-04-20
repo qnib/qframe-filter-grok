@@ -5,8 +5,6 @@ import (
 	"log"
 	"fmt"
 	"reflect"
-	"strings"
-
 	"github.com/vjeantet/grok"
 	"github.com/zpatrick/go-config"
 
@@ -56,16 +54,11 @@ func (p *Plugin) GetPattern() (string) {
 
 // Run fetches everything from the Data channel and flushes it to stdout
 func (p *Plugin) Run() {
-	log.Printf("[II] Start grok filter '%s' v%s", p.Name, p.Version)
+	p.Log("info", fmt.Sprintf("Start grok filter v%s", p.Version))
 	myId := qutils.GetGID()
 	bg := p.QChan.Data.Join()
-	cPath := fmt.Sprintf("filter.%s.inputs", p.Name)
-	inStr, err := p.Cfg.String(cPath)
-	if err != nil {
-		inStr = ""
-	}
-	inputs := strings.Split(inStr, ",")
-	srcSuccess, _ := p.Cfg.BoolOr(fmt.Sprintf("filter.%s.source-success", p.Name), true)
+	inputs := p.GetInputs()
+	srcSuccess := p.CfgBoolOr("source-success", true)
 	for {
 		val := bg.Recv()
 		switch val.(type) {
