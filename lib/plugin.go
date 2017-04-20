@@ -16,6 +16,7 @@ import (
 
 const (
 	version = "0.1.2"
+	pluginTyp = "filter"
 )
 
 type Plugin struct {
@@ -26,16 +27,11 @@ type Plugin struct {
 
 func New(qChan qtypes.QChan, cfg config.Config, name string) (p Plugin, err error) {
 	p = Plugin{
-		Plugin: qtypes.Plugin{
-			QChan: qChan,
-			Cfg:   cfg,
-		},
+		Plugin: qtypes.NewNamedPlugin(qChan, cfg, pluginTyp, name, version),
 	}
-	p.Version = version
-	p.Name = name
 	p.grok, _ = grok.New()
 	pCfg := fmt.Sprintf("filter.%s.pattern", p.Name)
-	p.pattern, err = cfg.String(pCfg)
+	p.pattern, err = p.Cfg.String(pCfg)
 	if err != nil {
 		log.Printf("[EE] Could not find pattern in config: '%s'", pCfg)
 		return p, err
