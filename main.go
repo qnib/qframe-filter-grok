@@ -20,7 +20,7 @@ func main() {
 	qChan.Broadcast()
 	cfgMap := map[string]string{
 		"filter.test.pattern": "%{INT:number}",
-		"filter.test.inputs": "test",
+		"filter.test.inputs": "test1,test2",
 	}
 
 	cfg := config.NewConfig(
@@ -36,20 +36,27 @@ func main() {
 	go p.Run()
 	time.Sleep(2*time.Second)
 	bg := qChan.Data.Join()
-	qm := qtypes.NewQMsg("test", "test")
-	qm.Msg = "1"
-	log.Println("Send message")
+	res := []string{}
+	qm := qtypes.NewQMsg("test", "test1")
+	qm.Msg = "test1"
+	log.Println("Send message test1")
 	qChan.Data.Send(qm)
+	qm2 := qtypes.NewQMsg("test", "test2")
+	qm2.Msg = "test2"
+	log.Println("Send message test2")
+	qChan.Data.Send(qm2)
 	for {
 		qm = bg.Recv().(qtypes.QMsg)
 		if qm.Source == "test" {
 			continue
 		}
 		fmt.Printf("#### Received result from grok (pattern:%s) filter for input: %s\n", p.GetPattern(), qm.Msg)
+		res = append(res, qm.Msg)
 		for k, v := range qm.KV {
 			fmt.Printf("%+15s: %s\n", k, v)
 		}
-		break
-
+		if len(res) == 2 {
+			break
+		}
 	}
 }
