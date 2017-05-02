@@ -3,10 +3,10 @@ package qframe_filter_grok
 import (
 	"C"
 	"fmt"
-	"os"
-	"reflect"
 	"github.com/vjeantet/grok"
 	"github.com/zpatrick/go-config"
+	"os"
+	"reflect"
 
 	"github.com/qnib/qframe-types"
 	"github.com/qnib/qframe-utils"
@@ -20,7 +20,7 @@ const (
 
 type Plugin struct {
 	qtypes.Plugin
-	grok *grok.Grok
+	grok    *grok.Grok
 	pattern string
 }
 
@@ -51,7 +51,6 @@ func New(qChan qtypes.QChan, cfg config.Config, name string) (p Plugin, err erro
 	return p, err
 }
 
-
 func (p *Plugin) Match(str string) (map[string]string, bool) {
 	match := true
 	val, _ := p.grok.Parse(p.pattern, str)
@@ -62,7 +61,7 @@ func (p *Plugin) Match(str string) (map[string]string, bool) {
 	return val, match
 }
 
-func (p *Plugin) GetPattern() (string) {
+func (p *Plugin) GetPattern() string {
 	return p.pattern
 }
 
