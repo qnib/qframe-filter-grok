@@ -3,10 +3,11 @@ package qframe_filter_grok
 import (
 	"C"
 	"fmt"
-	"github.com/vjeantet/grok"
-	"github.com/zpatrick/go-config"
 	"os"
 	"reflect"
+	"strings"
+	"github.com/vjeantet/grok"
+	"github.com/zpatrick/go-config"
 
 	"github.com/qnib/qframe-types"
 	"github.com/qnib/qframe-utils"
@@ -15,13 +16,21 @@ import (
 const (
 	version = "0.1.7"
 	pluginTyp = "filter"
-	defPatternDir = "/etc/qwatch/patterns"
+	defPatternDir = "/etc/grok-patterns"
 )
 
 type Plugin struct {
 	qtypes.Plugin
 	grok    *grok.Grok
 	pattern string
+}
+
+func (p *Plugin) GetOverwriteKeys() []string {
+	inStr, err := p.CfgString("overwrite-keys")
+	if err != nil {
+		inStr = ""
+	}
+	return strings.Split(inStr, ",")
 }
 
 func New(qChan qtypes.QChan, cfg config.Config, name string) (p Plugin, err error) {
@@ -72,6 +81,8 @@ func (p *Plugin) Run() {
 	bg := p.QChan.Data.Join()
 	inputs := p.GetInputs()
 	srcSuccess := p.CfgBoolOr("source-success", true)
+	msgKey := p.CfgStringOr("overwrite-message-key", "")
+	overwriteKeys := p.GetOverwriteKeys()
 	for {
 		val := bg.Recv()
 		switch val.(type) {
@@ -92,6 +103,51 @@ func (p *Plugin) Run() {
 			qm.SourcePath = append(qm.SourcePath, p.Name)
 			qm.KV, qm.SourceSuccess = p.Match(qm.Msg)
 			p.QChan.Data.Send(qm)
+		case qtypes.Message:
+			qm := val.(qtypes.Message)
+			if ! qm.InputsMatch(inputs) {
+				continue
+			}
+			if qm.SourceSuccess != srcSuccess {
+				continue
+			}
+			if qm.IsLastSource(p.Name) {
+				p.Log("debug", "IsLastSource() = true")
+				continue
+			}
+			if len(inputs) != 0 && ! qm.InputsMatch(inputs) {
+				p.Log("debug", fmt.Sprintf("InputsMatch(%v) = false", inputs))
+				continue
+			}
+			if qm.SourceSuccess != srcSuccess {
+				p.Log("debug", "qcs.SourceSuccess != srcSuccess")
+				continue
+			}
+			p.Log("info", fmt.Sprintf("Received qtypes.Message from %v: %s", qm.SourcePath, qm.Message))
+			qm.AppendSource(p.Name)
+			var kv map[string]string
+			kv, qm.SourceSuccess = p.Match(qm.Message)
+			if qm.SourceSuccess {
+				p.Log("info", fmt.Sprintf("Matched pattern %s", p.pattern))
+				for k,v := range kv {
+					p.Log("info", fmt.Sprintf("    %15s: %s", k,v ))
+					_, isIn := qm.KV[k]
+					if ! isIn {
+						qm.KV[k] = v
+					} else if qutils.IsItem(overwriteKeys, k) {
+						qm.KV[k] = v
+					} else {
+						p.Log("debug", fmt.Sprintf("Do not overwrite key '%s=%s' in Message '%s'", k, v, qm.Message))
+					}
+					if msgKey == k {
+						qm.Message = v
+					}
+				}
+			} else {
+				p.Log("info", fmt.Sprintf("No match for message '%s'", qm.Message))
+			}
+			p.QChan.Data.Send(qm)
+
 		}
 	}
 }
