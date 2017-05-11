@@ -16,6 +16,7 @@ import (
 const (
 	version = "0.1.9"
 	pluginTyp = "filter"
+	pluginPkg = "grok"
 	defPatternDir = "/etc/grok-patterns"
 )
 
@@ -35,7 +36,7 @@ func (p *Plugin) GetOverwriteKeys() []string {
 
 func New(qChan qtypes.QChan, cfg config.Config, name string) (p Plugin, err error) {
 	p = Plugin{
-		Plugin: qtypes.NewNamedPlugin(qChan, cfg, pluginTyp, name, version),
+		Plugin: qtypes.NewNamedPlugin(qChan, cfg, pluginTyp, pluginPkg,  name, version),
 	}
 	p.grok, _ = grok.New()
 	p.pattern, err = p.CfgString("pattern")
