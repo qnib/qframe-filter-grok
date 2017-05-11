@@ -123,7 +123,6 @@ func (p *Plugin) Run() {
 				p.Log("debug", "qcs.SourceSuccess != srcSuccess")
 				continue
 			}
-			p.Log("info", fmt.Sprintf("Received qtypes.Message from %v: %s", qm.SourcePath, qm.Message))
 			qm.AppendSource(p.Name)
 			var kv map[string]string
 			kv, qm.SourceSuccess = p.Match(qm.Message)
