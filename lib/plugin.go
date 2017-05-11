@@ -82,7 +82,6 @@ func (p *Plugin) Run() {
 	inputs := p.GetInputs()
 	srcSuccess := p.CfgBoolOr("source-success", true)
 	msgKey := p.CfgStringOr("overwrite-message-key", "")
-	overwriteKeys := p.GetOverwriteKeys()
 	for {
 		val := bg.Recv()
 		switch val.(type) {
@@ -128,26 +127,18 @@ func (p *Plugin) Run() {
 			var kv map[string]string
 			kv, qm.SourceSuccess = p.Match(qm.Message)
 			if qm.SourceSuccess {
-				p.Log("info", fmt.Sprintf("Matched pattern %s", p.pattern))
+				p.Log("debug", fmt.Sprintf("Matched pattern '%s'", p.pattern))
 				for k,v := range kv {
-					p.Log("info", fmt.Sprintf("    %15s: %s", k,v ))
-					_, isIn := qm.KV[k]
-					if ! isIn {
-						qm.KV[k] = v
-					} else if qutils.IsItem(overwriteKeys, k) {
-						qm.KV[k] = v
-					} else {
-						p.Log("debug", fmt.Sprintf("Do not overwrite key '%s=%s' in Message '%s'", k, v, qm.Message))
-					}
+					p.Log("debug", fmt.Sprintf("    %15s: %s", k,v ))
+					qm.KV[k] = v
 					if msgKey == k {
 						qm.Message = v
 					}
 				}
 			} else {
-				p.Log("info", fmt.Sprintf("No match for message '%s'", qm.Message))
+				p.Log("debug", fmt.Sprintf("No match for message '%s'", qm.Message))
 			}
 			p.QChan.Data.Send(qm)
-
 		}
 	}
 }

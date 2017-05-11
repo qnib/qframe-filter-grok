@@ -423,16 +423,16 @@
 			"revisionTime": "2017-04-14T06:27:15Z"
 		},
 		{
-			"checksumSHA1": "f8XmRaUNN4jah6rmcScndl+lXTo=",
+			"checksumSHA1": "Z3KNM+nE+DPqCeyZaNOAr0Ux6SM=",
 			"path": "github.com/qnib/qframe-filter-grok/lib",
-			"revision": "15c943bd18eb69ffc15fa8305452c50c2612cd9d",
-			"revisionTime": "2017-04-20T10:41:04Z"
+			"revision": "5ca91b408e85d9c4ceeb52a33320325b05470ebf",
+			"revisionTime": "2017-05-09T13:35:32Z"
 		},
 		{
-			"checksumSHA1": "I4XVXfNjhQQy4C4BarE5eB3S3BA=",
+			"checksumSHA1": "fW9XmHCQhjZGFl3sxc623vEZG+U=",
 			"path": "github.com/qnib/qframe-types",
-			"revision": "58e3940b885a96d5c9211f47faf856be14b2acaf",
-			"revisionTime": "2017-04-24T14:40:01Z"
+			"revision": "61492b7e5ccab03e0eeb1b75f8f96bbc769992ba",
+			"revisionTime": "2017-05-09T13:33:47Z"
 		},
 		{
 			"checksumSHA1": "cXF2ScH6MC6Y3rijJx6usaA1prY=",
