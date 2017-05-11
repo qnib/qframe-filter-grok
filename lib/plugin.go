@@ -76,7 +76,7 @@ func (p *Plugin) GetPattern() string {
 
 // Run fetches everything from the Data channel and flushes it to stdout
 func (p *Plugin) Run() {
-	p.Log("info", fmt.Sprintf("Start grok filter v%s", p.Version))
+	p.Log("notice", fmt.Sprintf("Start grok filter v%s", p.Version))
 	myId := qutils.GetGID()
 	bg := p.QChan.Data.Join()
 	inputs := p.GetInputs()
