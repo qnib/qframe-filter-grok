@@ -105,12 +105,6 @@ func (p *Plugin) Run() {
 			p.QChan.Data.Send(qm)
 		case qtypes.Message:
 			qm := val.(qtypes.Message)
-			if ! qm.InputsMatch(inputs) {
-				continue
-			}
-			if qm.SourceSuccess != srcSuccess {
-				continue
-			}
 			if qm.IsLastSource(p.Name) {
 				p.Log("debug", "IsLastSource() = true")
 				continue
