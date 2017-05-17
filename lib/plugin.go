@@ -34,7 +34,7 @@ func (p *Plugin) GetOverwriteKeys() []string {
 	return strings.Split(inStr, ",")
 }
 
-func New(qChan qtypes.QChan, cfg config.Config, name string) (p Plugin, err error) {
+func New(qChan qtypes.QChan, cfg *config.Config, name string) (p Plugin, err error) {
 	p = Plugin{
 		Plugin: qtypes.NewNamedPlugin(qChan, cfg, pluginTyp, pluginPkg,  name, version),
 	}
