@@ -40,7 +40,6 @@ func Receive(qchan qtypes.QChan, endCnt int) {
 }
 
 func BenchmarkGrok(b *testing.B) {
-	//endCnt := 199999
 	endCnt := b.N
 	qChan := qtypes.NewQChan()
 	qChan.Broadcast()
