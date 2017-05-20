@@ -33,7 +33,6 @@ func Receive(qchan qtypes.QChan, endCnt int) {
 			}
 		}
 		if endCnt == cnt {
-			fmt.Printf("End receiver after %d msg (%d message are from grok, expected %d)\n", allCnt, cnt, endCnt)
 			qchan.Data.Send(cnt)
 			break
 		}
@@ -41,7 +40,7 @@ func Receive(qchan qtypes.QChan, endCnt int) {
 }
 
 func BenchmarkGrok(b *testing.B) {
-	endCnt := 99999
+	endCnt := 199999
 	qChan := qtypes.NewQChan()
 	qChan.Broadcast()
 	cfgMap := map[string]string{
@@ -59,7 +58,8 @@ func BenchmarkGrok(b *testing.B) {
 	}
 	dc := qChan.Data.Join()
 	go p.Run()
-	time.Sleep(time.Duration(2)*time.Second)
+	time.Sleep(time.Duration(50)*time.Millisecond)
+	p.Log("info", fmt.Sprintf("Benchmark sends %d messages to grok", endCnt))
 	for i := 1; i <= endCnt; i++ {
 		msg := fmt.Sprintf("test%d", i)
 		qm := qtypes.NewMessage(qtypes.NewBase("test"), "test", "testMsg", msg)
