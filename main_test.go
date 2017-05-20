@@ -60,8 +60,8 @@ func BenchmarkGrok(b *testing.B) {
 	go p.Run()
 	time.Sleep(time.Duration(50)*time.Millisecond)
 	p.Log("info", fmt.Sprintf("Benchmark sends %d messages to grok", endCnt))
+	qm := qtypes.NewMessage(qtypes.NewBase("test"), "test", "testMsg", "none")
 	for i := 1; i <= endCnt; i++ {
-		qm := qtypes.NewMessage(qtypes.NewBase("test"), "test", "testMsg", "none")
 		msg := fmt.Sprintf("test%d", i)
 		qm.Message = msg
 		qChan.Data.Send(qm)
