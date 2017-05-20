@@ -10,7 +10,7 @@ import (
 	"github.com/qnib/qframe-filter-grok/lib"
 )
 
-func Run(qChan qtypes.QChan, cfg config.Config, name string) {
+func Run(qChan qtypes.QChan, cfg *config.Config, name string) {
 	p, _ := qframe_filter_grok.New(qChan, cfg, name)
 	p.Run()
 }
@@ -28,7 +28,7 @@ func main() {
 			config.NewStatic(cfgMap),
 		},
 	)
-	p, err := qframe_filter_grok.New(qChan, *cfg, "test")
+	p, err := qframe_filter_grok.New(qChan, cfg, "test")
 	if err != nil {
 		log.Printf("[EE] Failed to create filter: %v", err)
 		return
