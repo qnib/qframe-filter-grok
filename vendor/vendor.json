@@ -45,6 +45,12 @@
 			"revisionTime": "2017-04-24T21:31:22Z"
 		},
 		{
+			"checksumSHA1": "dvabztWVQX8f6oMLRyv4dLH+TGY=",
+			"path": "github.com/davecgh/go-spew/spew",
+			"revision": "346938d642f2ec3594ed81d874461961cd0faa76",
+			"revisionTime": "2016-10-29T20:57:26Z"
+		},
+		{
 			"checksumSHA1": "Gj+xR1VgFKKmFXYOJMnAczC3Znk=",
 			"path": "github.com/docker/distribution/digestset",
 			"revision": "a528cc1fc338bd00036dbf1315a74c2ee458b094",
@@ -165,6 +171,12 @@
 		{
 			"checksumSHA1": "NC4Tz59SrBVdPxt12GjYCxX60eU=",
 			"path": "github.com/docker/docker/pkg/fileutils",
+			"revision": "916e9ad75472bb5a0ab7acf9515a4d369248791d",
+			"revisionTime": "2017-05-20T13:48:50Z"
+		},
+		{
+			"checksumSHA1": "W7Rnb5YoC9u0vT9eLKoezV3N4E8=",
+			"path": "github.com/docker/docker/pkg/homedir",
 			"revision": "916e9ad75472bb5a0ab7acf9515a4d369248791d",
 			"revisionTime": "2017-05-20T13:48:50Z"
 		},
@@ -439,6 +451,12 @@
 			"revisionTime": "2017-05-05T04:36:39Z"
 		},
 		{
+			"checksumSHA1": "LuFv4/jlrmFNnDb/5SCSEPAM9vU=",
+			"path": "github.com/pmezard/go-difflib/difflib",
+			"revision": "792786c7400a136282c1664665ae0a8db921c6c2",
+			"revisionTime": "2016-01-10T10:55:54Z"
+		},
+		{
 			"checksumSHA1": "X+MBcFu+HUQnCBe+ys2gvGUrBYg=",
 			"path": "github.com/qnib/qframe-filter-grok",
 			"revision": "6bc384de623c843af67fa31ff92973d8590ab19f",
@@ -467,6 +485,10 @@
 			"path": "github.com/satori/go.uuid",
 			"revision": "5bf94b69c6b68ee1b541973bb8e1144db23a194b",
 			"revisionTime": "2017-03-21T23:07:31Z"
+		},
+		{
+			"path": "github.com/stretchr/testify/assert",
+			"revision": ""
 		},
 		{
 			"checksumSHA1": "suTkE/i6HlZRXOzrTY68Gv6Emng=",
