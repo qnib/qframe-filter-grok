@@ -38,26 +38,6 @@ func New(qChan qtypes.QChan, cfg *config.Config, name string) (p Plugin, err err
 	p = Plugin{
 		Plugin: qtypes.NewNamedPlugin(qChan, cfg, pluginTyp, pluginPkg,  name, version),
 	}
-	p.grok, _ = grok.New()
-	p.pattern, err = p.CfgString("pattern")
-	if err != nil {
-		p.Log("error", "Could not find pattern in config")
-		return p, err
-	}
-	pDir, err := p.CfgString("pattern-dir")
-	if err != nil {
-		if _, err := os.Stat(defPatternDir); err == nil {
-			pDir = defPatternDir
-			p.Log("info", fmt.Sprintf("Add patterns from DEFAULT directory '%s'", pDir))
-		}
-	} else {
-		p.Log("info", fmt.Sprintf("Add patterns from directory '%s'", pDir))
-	}
-	if _, err := os.Stat(pDir); err != nil {
-		p.Log("error", fmt.Sprintf("Patterns directory does not exist '%s'", pDir))
-	} else {
-		p.grok.AddPatternsFromPath(pDir)
-	}
 	return p, err
 }
 
@@ -75,10 +55,34 @@ func (p *Plugin) GetPattern() string {
 	return p.pattern
 }
 
+func (p *Plugin) InitGrok() {
+	p.grok, _ = grok.New()
+	var err error
+	p.pattern, err = p.CfgString("pattern")
+	if err != nil {
+		p.Log("fatal", "Could not find pattern in config")
+	}
+	pDir, err := p.CfgString("pattern-dir")
+	if err != nil {
+		if _, err := os.Stat(defPatternDir); err == nil {
+			pDir = defPatternDir
+			p.Log("info", fmt.Sprintf("Add patterns from DEFAULT directory '%s'", pDir))
+		}
+	} else {
+		p.Log("info", fmt.Sprintf("Add patterns from directory '%s'", pDir))
+	}
+	if _, err := os.Stat(pDir); err != nil {
+		p.Log("error", fmt.Sprintf("Patterns directory does not exist '%s'", pDir))
+	} else {
+		p.grok.AddPatternsFromPath(pDir)
+	}
+}
+
 // Run fetches everything from the Data channel and flushes it to stdout
 func (p *Plugin) Run() {
 	p.Log("notice", fmt.Sprintf("Start grok filter v%s", p.Version))
-	myId := qutils.GetGID()
+	p.InitGrok()
+	p.MyID = qutils.GetGID()
 	bg := p.QChan.Data.Join()
 	inputs := p.GetInputs()
 	srcSuccess := p.CfgBoolOr("source-success", true)
@@ -88,10 +92,10 @@ func (p *Plugin) Run() {
 		switch val.(type) {
 		case qtypes.QMsg:
 			qm := val.(qtypes.QMsg)
-			if qm.SourceID == myId {
+			if qm.SourceID == p.MyID {
 				continue
 			}
-			if len(inputs) != 0 && !qutils.IsInput(inputs, qm.Source) {
+			if !qutils.IsInput(inputs, qm.Source) {
 				continue
 			}
 			if qm.SourceSuccess != srcSuccess {
@@ -99,22 +103,13 @@ func (p *Plugin) Run() {
 			}
 			qm.Type = "filter"
 			qm.Source = p.Name
-			qm.SourceID = myId
+			qm.SourceID = p.MyID
 			qm.SourcePath = append(qm.SourcePath, p.Name)
 			qm.KV, qm.SourceSuccess = p.Match(qm.Msg)
 			p.QChan.Data.Send(qm)
 		case qtypes.Message:
 			qm := val.(qtypes.Message)
-			if qm.IsLastSource(p.Name) {
-				p.Log("debug", "IsLastSource() = true")
-				continue
-			}
-			if len(inputs) != 0 && ! qm.InputsMatch(inputs) {
-				p.Log("debug", fmt.Sprintf("InputsMatch(%v) = false", inputs))
-				continue
-			}
-			if qm.SourceSuccess != srcSuccess {
-				p.Log("debug", "qcs.SourceSuccess != srcSuccess")
+			if p.StopProcessingMessage(qm, false) {
 				continue
 			}
 			qm.AppendSource(p.Name)
