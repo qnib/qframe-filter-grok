@@ -13,7 +13,7 @@ import (
 	"reflect"
 )
 
-func Receive(qchan qtypes.QChan, endCnt int) {
+func Receive(qchan qtypes.QChan, source string, endCnt int) {
 	bg := qchan.Data.Join()
 	allCnt := 1
 	cnt := 1
@@ -24,7 +24,7 @@ func Receive(qchan qtypes.QChan, endCnt int) {
 			switch val.(type) {
 			case qtypes.Message:
 				qm := val.(qtypes.Message)
-				if qm.IsLastSource("grok") {
+				if qm.IsLastSource(source) {
 					cnt++
 				}
 			default:
@@ -49,7 +49,7 @@ func BenchmarkGrok(b *testing.B) {
 		"filter.grok.inputs": "test",
 		"filter.grok.pattern-dir": "/usr/local/src/github.com/qnib/qframe-filter-grok/resources/patterns",
 	}
-	go Receive(qChan, endCnt)
+	go Receive(qChan, "grok", endCnt)
 	cfg := config.NewConfig([]config.Provider{config.NewStatic(cfgMap)})
 	p, err := qframe_filter_grok.New(qChan, cfg, "grok")
 	if err != nil {
