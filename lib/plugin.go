@@ -43,6 +43,7 @@ func New(qChan qtypes.QChan, cfg *config.Config, name string) (p Plugin, err err
 
 func (p *Plugin) Match(str string) (map[string]string, bool) {
 	match := true
+	p.Log("trace", fmt.Sprintf("Match '%s' against '%s'", str, p.pattern))
 	val, _ := p.grok.Parse(p.pattern, str)
 	keys := reflect.ValueOf(val).MapKeys()
 	if len(keys) == 0 {
